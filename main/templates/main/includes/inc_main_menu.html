@@ -1,0 +1,24 @@
+<div class="col-sm-9 offset-md-0 py-4">
+  <h4 class="text-white">Меню</h4>
+  <ul class="list-unstyled">
+    <li><a href="{% url 'main:main' %}" class="text-white">Главная</a></li>
+  </ul>
+</div>
+  <div class="col-sm-3 offset-md-0 py-4">
+  <h4 class="text-white">Профиль</h4>
+  <ul class="list-unstyled">
+     {% if user.is_authenticated %}
+            {% if user.avatar  %}
+                <li><a href="{% url 'users:profile' %}" class="text-white">Профиль: <font color="green" size='3'>{{ user }}</font> <img src="{{ user.avatar.url }}" alt="Avatar" width="30" height="30"></a></li>
+            {% else %}
+                <li><a href="{% url 'users:profile' %}" class="text-white">Профиль: <font color="green" size='3'>{{ user }}</font></a></li>
+            {% endif %}
+            <li><a href="{% url 'users:logout' %}" class="text-white">Выйти</a></li>
+            <li><a href="/admin/" class="text-white">Админ</a></li>
+            <li><a href="{% url 'chat:chat_list' %}" class="text-white">Чат</a></li>
+        {% else %}
+            <li><a href="{% url 'users:register' %}" class="text-white">Регистрация</a></li>
+            <li><a href="{% url 'users:login' %}" class="text-white">Войти</a></li>
+        {% endif %}
+  </ul>
+</div>

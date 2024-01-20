@@ -1,0 +1,29 @@
+{% extends 'main/base.html' %}
+
+{% block content %}
+
+<div class="col-12">
+  <div class="row">
+    <div class="col-7">
+      <div class="card">
+        <div class="card-body">
+          <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form.as_p }}
+
+            <button type="submit" class="btn btn-success">
+              {% if object %}
+                Сохранить
+              {% else %}
+                Создать
+              {% endif %}
+            </button>
+            <a href="{% url 'main:questionnaire_delete' object.pk %}" class="btn btn-warning">Удалить анкету</a>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

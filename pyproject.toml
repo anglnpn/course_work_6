@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "curse-work-6"
+version = "0.1.0"
+description = ""
+authors = ["angelina <angln.pnn@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+django = "^5.0.1"
+psycopg2-binary = "^2.9.9"
+utils = "^1.0.2"
+pillow = "^10.2.0"
+python-dotenv = "^1.0.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

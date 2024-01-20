@@ -1,0 +1,22 @@
+{% extends 'main/base.html' %}
+
+{% block content %}
+
+<div class="col-12">
+  <div class="row">
+    <div class="col-6">
+      <div class="card">
+        <div class="card-body">
+          <form method="post">
+            {% csrf_token %}
+            <p> Хотите удалить анкету "{{ object.name }} {{ object.surname }}"?</p>
+            <button type="submit" class="btn btn-danger">Подтвердить</button>
+            <button type="button" onclick="window.location.href = '{% url 'main:questionnaire_update' object.pk %}';" class="btn btn-sm btn-outline-info">Отмена</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

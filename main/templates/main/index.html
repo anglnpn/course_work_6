@@ -1,0 +1,147 @@
+{% extends 'main/base.html' %}
+{% load mediapath %}
+
+{% block content %}
+
+<style>
+    .scattering {
+      width: 100px;
+      height: 100px;
+      position: absolute;
+      left: 50%;
+      top: 20%;
+      transform: translate(-50%, -50%);
+      background: url(http://zornet.ru/ABVUN/Aba/detunis/supasnab/heart.png);
+      background-position: 0 0;
+      cursor: pointer;
+      animation: fave-heart 1s steps(28);
+    }
+    .scattering:hover {
+      background-position: -2800px 0;
+      transition: background 1s steps(28);
+    }
+    @keyframes fave-heart {
+      0% {
+        background-position: 0 0;
+      }
+      100% {
+        background-position: -2000px 0;
+      }
+    }
+
+    .aaaa {
+      width: 100px;
+      height: 100px;
+      position: absolute;
+      left: 25%;
+      top: 35%;
+    }
+</style>
+
+<div class="container">
+    <header>
+        <div class="pricing-header p-3 pb-md-4 mx-auto text-center">
+            <h1 class="display-4 fw-normal text-body-emphasis">Главная</h1>
+
+            <a class="btn btn-outline-primary" href="{% url 'main:create_questionnaire' %}">Создать анкету</a>
+
+        </div>
+    </header>
+
+    <div class="row">
+        <div class="col-md-5">
+            <!-- Отображение анкеты пользователя, который создал ее -->
+            {% if user.questionnaire_set.all %}
+            {% with questionnaire=user.questionnaire_set.first %}
+                <div class="card">
+                    {% if questionnaire.image %}
+                        <img class="card-img-top"
+                             src="{% mediapath questionnaire.image %}"
+                             width="16" height="300"
+                             alt="Card image cap">
+                    {% else %}
+                        <p>Пользователь не загрузил изображение.</p>
+                    {% endif %}
+
+                    <h2>{{ questionnaire.name }} {{ questionnaire.surname }}</h2>
+                    <p>{{ questionnaire.age }} лет. </p>
+                    <!-- Добавьте другие детали анкеты по необходимости -->
+                </div>
+            {% endwith %}
+            {% else %}
+                <p>Пользователь не создал анкету.</p>
+            {% endif %}
+        </div>
+
+
+        <div class="col-md-2">
+            <!-- Кнопка "Вперед" -->
+            <button class="btn btn-success scattering" onclick="showCard(1)"><font color="purple" size='4'>Like</font></button>
+
+            <button class="btn btn-danger aaaa" onclick="showCard(1)"><font color="white" size='4'>Dislike</font></button>
+
+        </div>
+
+        <div class="col-md-5">
+            <!-- Отображение анкет других пользователей -->
+            {% for object in object_list %}
+                {% if object.author != user %}
+                    <div class="card" style="display: none;">
+                        {% if object.image %}
+                            <img class="card-img-top"
+                                src="{% mediapath object.image %}"
+                                width="16" height="300"
+                                alt="Card image cap">
+                        {% else %}
+                            <p>Пользователь не загрузил изображение.</p>
+                        {% endif %}
+
+                        <h2>{{ object.name }} {{ object.surname }}</h2>
+                        <p>{{ object.age }} лет. </p>
+                        <!-- Добавьте другие детали анкеты по необходимости -->
+                        <button class="btn btn-danger" onclick="startDialog('{{ user.id }}', '{{ object.author.id }}')">Написать</button>
+                        <button type="button" onclick="window.location.href = '{% url 'main:profile_view' object.pk %}';" class="btn btn-sm btn-outline-info">Подробнее</button>
+                        {% if object.author == user %}
+                            <button type="button" onclick="window.location.href = '{% url 'main:questionnaire_update' object.pk %}';" class="btn btn-sm btn-outline-info">Редактировать</button>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentCard = 1;
+
+    function showCard(n) {
+        const cards = document.getElementsByClassName('card');
+        currentCard += n;
+
+        if (currentCard > cards.length) {
+            currentCard = 1;
+        }
+
+        if (currentCard < 1) {
+            currentCard = cards.length;
+        }
+
+        for (let i = 1; i < cards.length; i++) {
+            cards[i].style.display = 'none';
+        }
+
+        cards[currentCard - 1].style.display = 'block';
+    }
+
+   function startDialog(senderId, receiverId) {
+        const url = '{% url 'chat:start_dialog' %}' + '?user_id=' + senderId + '&receiver_id=' + receiverId;
+        window.location.href = url;
+    }
+
+
+</script>
+
+
+{% endblock %}
+
+
