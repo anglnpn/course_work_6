@@ -4,144 +4,141 @@
 {% block content %}
 
 <style>
-    .scattering {
-      width: 100px;
-      height: 100px;
-      position: absolute;
-      left: 50%;
-      top: 20%;
-      transform: translate(-50%, -50%);
-      background: url(http://zornet.ru/ABVUN/Aba/detunis/supasnab/heart.png);
-      background-position: 0 0;
-      cursor: pointer;
-      animation: fave-heart 1s steps(28);
-    }
-    .scattering:hover {
-      background-position: -2800px 0;
-      transition: background 1s steps(28);
-    }
-    @keyframes fave-heart {
-      0% {
-        background-position: 0 0;
-      }
-      100% {
-        background-position: -2000px 0;
-      }
+    .card-container {
+        position: relative;
     }
 
-    .aaaa {
-      width: 100px;
-      height: 100px;
-      position: absolute;
-      left: 25%;
-      top: 35%;
+    .scattering {
+        width: 80px;
+        height: 80px;
+        position: absolute;
+        cursor: pointer;
+        font-size: 120px;
+    }
+
+    .scattering.like {
+        color: red;
+        left: 120%; /* Отцентрированная кнопка Like */
+        top: 1%; /* Отступ сверху для кнопки Like */
+        transform: translateX(-50%);
+    }
+
+    .scattering.dislike {
+        color: black; /* Цвет кнопки дизлайка */
+        left: 120%; /* Отцентрированная кнопка Dislike */
+        top: 30%; /* Отступ сверху для кнопки Dislike */
+        transform: translateX(-50%);
+        border: none; /* Убираем границу */
+        background-color: transparent; /* Прозрачный фон */
+    }
+
+    .card {
+        display: none;
     }
 </style>
 
-<div class="container">
-    <header>
-        <div class="pricing-header p-3 pb-md-4 mx-auto text-center">
-            <h1 class="display-4 fw-normal text-body-emphasis">Главная</h1>
+<body>
+    <div class="container">
+        <header>
+            <div class="pricing-header p-3 pb-md-4 mx-auto text-left">
+                <img src="{{ request.user.avatar.url }}" alt="Avatar" width="40" height="40"></a></li>
+                <h4 class="display-4 fw-normal text-body-emphasis">Найдите себе пару, {{request.user.name}} </h4>
+            </div>
+        </header>
 
-            <a class="btn btn-outline-primary" href="{% url 'main:create_questionnaire' %}">Создать анкету</a>
-
-        </div>
-    </header>
-
-    <div class="row">
-        <div class="col-md-5">
-            <!-- Отображение анкеты пользователя, который создал ее -->
-            {% if user.questionnaire_set.all %}
-            {% with questionnaire=user.questionnaire_set.first %}
-                <div class="card">
-                    {% if questionnaire.image %}
-                        <img class="card-img-top"
-                             src="{% mediapath questionnaire.image %}"
-                             width="16" height="300"
-                             alt="Card image cap">
-                    {% else %}
-                        <p>Пользователь не загрузил изображение.</p>
-                    {% endif %}
-
-                    <h2>{{ questionnaire.name }} {{ questionnaire.surname }}</h2>
-                    <p>{{ questionnaire.age }} лет. </p>
-                    <!-- Добавьте другие детали анкеты по необходимости -->
-                </div>
-            {% endwith %}
-            {% else %}
-                <p>Пользователь не создал анкету.</p>
-            {% endif %}
-        </div>
-
-
-        <div class="col-md-2">
-            <!-- Кнопка "Вперед" -->
-            <button class="btn btn-success scattering" onclick="showCard(1)"><font color="purple" size='4'>Like</font></button>
-
-            <button class="btn btn-danger aaaa" onclick="showCard(1)"><font color="white" size='4'>Dislike</font></button>
-
-        </div>
-
-        <div class="col-md-5">
-            <!-- Отображение анкет других пользователей -->
-            {% for object in object_list %}
-                {% if object.author != user %}
-                    <div class="card" style="display: none;">
-                        {% if object.image %}
+        <div class="col-md-5 text-center">
+            {% for liked_user in object_list %}
+                {% if liked_user != request.user %}
+                    <div class="card" data-liked-user-id="{{ liked_user.id }}">
+                        {% if liked_user.avatar %}
                             <img class="card-img-top"
-                                src="{% mediapath object.image %}"
+                                src="{{ liked_user.avatar.url }}"
                                 width="16" height="300"
                                 alt="Card image cap">
                         {% else %}
                             <p>Пользователь не загрузил изображение.</p>
                         {% endif %}
 
-                        <h2>{{ object.name }} {{ object.surname }}</h2>
-                        <p>{{ object.age }} лет. </p>
-                        <!-- Добавьте другие детали анкеты по необходимости -->
-                        <button class="btn btn-danger" onclick="startDialog('{{ user.id }}', '{{ object.author.id }}')">Написать</button>
-                        <button type="button" onclick="window.location.href = '{% url 'main:profile_view' object.pk %}';" class="btn btn-sm btn-outline-info">Подробнее</button>
-                        {% if object.author == user %}
-                            <button type="button" onclick="window.location.href = '{% url 'main:questionnaire_update' object.pk %}';" class="btn btn-sm btn-outline-info">Редактировать</button>
-                        {% endif %}
+                        <h2>{{ liked_user.name }} {{ liked_user.surname }}</h2>
+                        <p>{{ liked_user.age }} лет. </p>
+                        <button type="button" class="btn btn-sm btn-outline-info">Подробнее</button>
+                        <div class="scattering like" onclick="sendAction('like', '{{ liked_user.id }}')" data-liked-user-id="{{ liked_user.id }}">&#x1F497;</div>
+                        <div class="scattering dislike" onclick="showCard(1)" data-liked-user-id="{{ liked_user.id }}">👎</div>
                     </div>
                 {% endif %}
             {% endfor %}
         </div>
     </div>
-</div>
 
 <script>
-    let currentCard = 1;
+    let currentCard = 0;
 
     function showCard(n) {
         const cards = document.getElementsByClassName('card');
         currentCard += n;
 
-        if (currentCard > cards.length) {
-            currentCard = 1;
+        if (currentCard >= cards.length) {
+            currentCard = 0;
         }
 
-        if (currentCard < 1) {
-            currentCard = cards.length;
+        if (currentCard < 0) {
+            currentCard = cards.length - 1;
         }
 
-        for (let i = 1; i < cards.length; i++) {
+        for (let i = 0; i < cards.length; i++) {
             cards[i].style.display = 'none';
         }
 
-        cards[currentCard - 1].style.display = 'block';
+        cards[currentCard].style.display = 'block';
     }
 
-   function startDialog(senderId, receiverId) {
-        const url = '{% url 'chat:start_dialog' %}' + '?user_id=' + senderId + '&receiver_id=' + receiverId;
-        window.location.href = url;
+    function sendAction(action, likedUserId) {
+        console.log('liked_user_id:', likedUserId);
+
+        if (likedUserId !== 'undefined') {
+            // Оставляем fetch без current_user_id
+            fetch(`/main/like/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `liked_user_id=${likedUserId}`, // Передаем только liked_user_id
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                showCard(1);
+            })
+            .catch(error => console.error('Error:', error));
+        }
     }
 
-
+    // Обработчик события загрузки страницы
+    window.onload = function () {
+        // Показываем первую карточку при загрузке страницы
+        showCard(0);
+    };
 </script>
 
 
+</body>
+
 {% endblock %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

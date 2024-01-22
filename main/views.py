@@ -1,81 +1,55 @@
 from django.http import HttpResponseForbidden
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse_lazy, reverse
+from django.shortcuts import render
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
-
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin, PermissionRequiredMixin
 
-from main.models import Questionnaire
-from main.forms import QuestionnaireForm
+from main.models import Likes
+from users.models import User
+# from main.models import Match
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
+
+from main.utils import record_like
 
 
-class QuestionnaireCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
-    """
-    Класс для создания анкеты
-    """
-    model = Questionnaire
-    form_class = QuestionnaireForm
-    success_url = reverse_lazy('main:main')
-    template_name = 'main/new_questionnaire.html'
-    permission_required = 'main.add_questionnaire'
-
-    def __init__(self):
-        self.request = None
-        self.object = None
-
-    def form_valid(self, form):
-        self.object = form.save()
-        self.object.author = self.request.user
-        self.object.save()
-
-        return super().form_valid(form)
-
-
-class QuestionnaireListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
+class UserProfileListView(LoginRequiredMixin, ListView):
     """
     Класс для создания списка анкет
     """
-    model = Questionnaire
+    model = User
     template_name = 'main/index.html'
-    permission_required = 'main.view_questionnaire'
-
-    def get_queryset(self):
-        queryset = super().get_queryset()
-
-        for questionnaire in queryset:
-            questionnaire.can_edit = questionnaire.author == self.request.user
-
-        return queryset
+    # permission_required = 'user.view_user'
 
 
-class QuestionnaireDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
+class UserProfileDetailView(LoginRequiredMixin, DetailView):
     """
     Класс для отображения анкеты
     """
 
-    model = Questionnaire
+    model = User
     template_name = 'main/profile_view.html'
-    permission_required = 'main.view_questionnaire'
+    # permission_required = 'user.view_user'
 
 
-class QuestionnaireUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
-    """
-     Класс для обновления анкеты
-     """
+@csrf_exempt
+@require_POST
+def like_view(request):
+    try:
+        # Получаем id текущего пользователя
+        user_id = request.user.id
 
-    model = Questionnaire
-    form_class = QuestionnaireForm
-    success_url = reverse_lazy('main:main')
-    template_name = 'main/questionnaire_update.html'
-    permission_required = 'main.change_questionnaire'
+        # Получаем id пользователя, которого лайкнули
+        liked_user_id = request.POST.get('liked_user_id')
+        print('current_user_id:', user_id)
+        print('liked_user_id:', liked_user_id)
 
+        # Вызываем функцию для записи лайка
+        record_like(user_id, int(liked_user_id))
 
-class QuestionnaireDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
-    """
-    Класс для удаления анкеты
-    """
-
-    model = Questionnaire
-    template_name = 'main/questionnaire_delete.html'
-    permission_required = 'main.delete_questionnaire'
-    success_url = reverse_lazy('main:main')
+        return JsonResponse({'status': 'success'})
+    except Exception as e:
+        print('Error:', e)
+        return JsonResponse({'status': 'error', 'message': str(e)})

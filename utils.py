@@ -1,5 +1,6 @@
-from random import random
 import string
+from datetime import datetime
+from random import random
 
 NULLABLE = {'blank': True, 'null': True}
 
@@ -11,4 +12,7 @@ def generate_password():
     password = ''.join(random.choice(characters) for i in range(length))
 
     return password
+
+
+
 

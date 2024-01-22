@@ -37,10 +37,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.postgres',
+    'PIL',
     'main',
     'blog',
     'users',
-    'chat',
+
 ]
 
 MIDDLEWARE = [
@@ -147,3 +149,7 @@ EMAIL_HOST_PASSWORD = 'wtmthzsexfloioul'  # реальный пароль - за
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 SERVER_EMAIL = EMAIL_HOST_USER
 EMAIL_ADMIN = EMAIL_HOST_USER
+
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'

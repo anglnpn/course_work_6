@@ -20,7 +20,7 @@ class RegisterView(CreateView):
     def form_valid(self, form):
         new_user = form.save()
         # Получаем объект группы по имени
-        group_name = 'user'  # Замените на фактическое имя вашей группы
+        group_name = 'user'
         user_group, created = Group.objects.get_or_create(name=group_name)
 
         # Присваиваем пользователя к группе
