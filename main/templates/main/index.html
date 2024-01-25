@@ -3,132 +3,99 @@
 
 {% block content %}
 
-<style>
-    .card-container {
-        position: relative;
-    }
 
-    .scattering {
-        width: 80px;
-        height: 80px;
-        position: absolute;
-        cursor: pointer;
-        font-size: 120px;
-    }
-
-    .scattering.like {
-        color: red;
-        left: 120%; /* Отцентрированная кнопка Like */
-        top: 1%; /* Отступ сверху для кнопки Like */
-        transform: translateX(-50%);
-    }
-
-    .scattering.dislike {
-        color: black; /* Цвет кнопки дизлайка */
-        left: 120%; /* Отцентрированная кнопка Dislike */
-        top: 30%; /* Отступ сверху для кнопки Dislike */
-        transform: translateX(-50%);
-        border: none; /* Убираем границу */
-        background-color: transparent; /* Прозрачный фон */
-    }
-
-    .card {
-        display: none;
-    }
-</style>
-
-<body>
+<div class="container">
+  <div class="album py-5 bg-light">
     <div class="container">
-        <header>
-            <div class="pricing-header p-3 pb-md-4 mx-auto text-left">
-                <img src="{{ request.user.avatar.url }}" alt="Avatar" width="40" height="40"></a></li>
-                <h4 class="display-4 fw-normal text-body-emphasis">Найдите себе пару, {{request.user.name}} </h4>
+      <div class="col-13">
+        <div class="card">
+          <div class="row">
+            {% for object in object_list %}
+            {% if forloop.counter > object_list|length|add:"-3" %}
+            <div class="col-md-4">
+              <div class="card mb-4 box-shadow">
+                <img class="card-img-top"
+                     src="{% mediapath object.image %}"
+                     width="16" height="300">
+                <div class="card-body">
+                  <p class="card-text">
+                    {{ object|title|truncatechars:50 }}
+                  </p>
+
+                <div class="btn-group d-flex justify-content-center">
+                  <a href="{% url 'blog:view' object.pk %}"
+                     class="btn btn-sm btn-outline-secondary text-center">Подробнее</a>
+                </div>
+
+                </div>
+              </div>
             </div>
-        </header>
-
-        <div class="col-md-5 text-center">
-            {% for liked_user in object_list %}
-                {% if liked_user != request.user %}
-                    <div class="card" data-liked-user-id="{{ liked_user.id }}">
-                        {% if liked_user.avatar %}
-                            <img class="card-img-top"
-                                src="{{ liked_user.avatar.url }}"
-                                width="16" height="300"
-                                alt="Card image cap">
-                        {% else %}
-                            <p>Пользователь не загрузил изображение.</p>
-                        {% endif %}
-
-                        <h2>{{ liked_user.name }} {{ liked_user.surname }}</h2>
-                        <p>{{ liked_user.age }} лет. </p>
-                        <button type="button" class="btn btn-sm btn-outline-info">Подробнее</button>
-                        <div class="scattering like" onclick="sendAction('like', '{{ liked_user.id }}')" data-liked-user-id="{{ liked_user.id }}">&#x1F497;</div>
-                        <div class="scattering dislike" onclick="showCard(1)" data-liked-user-id="{{ liked_user.id }}">👎</div>
-                    </div>
-                {% endif %}
+            {% endif %}
             {% endfor %}
+          </div>
+          {% if user.is_authenticated %}
+              <a href="/blog/" class="btn btn-sm btn-outline-secondary text-center">Для подробной информации кликни сюда</a>
+          {% else %}
+              <a href="{% url 'users:login' %}" class="btn btn-sm btn-outline-secondary text-center">Авторизуйтесь, чтобы получить больше возможностей сайта</a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% if user.is_authenticated %}
+    <div class="col-md-5">
+        <div class="card mb-4 rounded-3 box-shadow">
+            <ul class="list-group">
+
+                <li class="list-group-item text-center">
+                    <h5>SkyLove</h5>
+                </li>
+                <li class="list-group-item text-center">
+                    <h5>Ваша анкета:</h5>
+                    <img src="{{ request.user.avatar.url }}" alt="Avatar" width="100" height="100">
+                    <p>{{ user.name }} {{ user.surname }}</p>
+                    <p>{{ user.age }} лет</p>
+                    <p>Пол: {{ user.sex }}</p>
+                    <p>{{ user.country }}. {{ user.city }}</p>
+                    <p>{{ user.description }}</p>
+                </li>
+                <li class="list-group-item text-center">
+                    <a href="{% url 'main:skylove_list_view' %}" class="btn text-center">Начать знакомиться</a>
+                </li>
+            </ul>
         </div>
     </div>
 
-<script>
-    let currentCard = 0;
-
-    function showCard(n) {
-        const cards = document.getElementsByClassName('card');
-        currentCard += n;
-
-        if (currentCard >= cards.length) {
-            currentCard = 0;
-        }
-
-        if (currentCard < 0) {
-            currentCard = cards.length - 1;
-        }
-
-        for (let i = 0; i < cards.length; i++) {
-            cards[i].style.display = 'none';
-        }
-
-        cards[currentCard].style.display = 'block';
-    }
-
-    function sendAction(action, likedUserId) {
-        console.log('liked_user_id:', likedUserId);
-
-        if (likedUserId !== 'undefined') {
-            // Оставляем fetch без current_user_id
-            fetch(`/main/like/`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: `liked_user_id=${likedUserId}`, // Передаем только liked_user_id
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log(data);
-                showCard(1);
-            })
-            .catch(error => console.error('Error:', error));
-        }
-    }
-
-    // Обработчик события загрузки страницы
-    window.onload = function () {
-        // Показываем первую карточку при загрузке страницы
-        showCard(0);
-    };
-</script>
-
-
-</body>
+    <div class="col-md-5 offset-md-2">
+        <div class="card mb-4 rounded-3 box-shadow">
+            <div class="card-header py-3">
+                <h4 class="my-0 font-weight-normal">Свяжитесь с нами</h4>
+            </div>
+            <div class="card-body">
+                <form method="post" action="" class="form-floating">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="name">Имя</label>
+                        <input type="text" name="name" class="form-control" id="name" placeholder="Ваше имя" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="phone">Телефон</label>
+                        <input type="text" name="phone" class="form-control" id="phone" placeholder="Контактный телефон" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="message">Сообщение</label>
+                        <input type="text" name="message" class="form-control" id="message" placeholder="Напишите ваш запрос" required></input>
+                    </div>
+                    <button type="submit" class="btn btn-lg btn-block btn-outline-primary">Отправить</button>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endif %}
 
 {% endblock %}
-
-
-
-
-
 
 
 

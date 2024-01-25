@@ -1,0 +1,24 @@
+{% extends 'main/base.html' %}
+
+{% block content %}
+
+<div class="col-12">
+  <form class="row" method="post" enctype="multipart/form-data">
+    <div class="col-3"></div>
+    <div class="col-6">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">
+            Управление сайтом
+            {% if perms.blog.add_blog %}
+            <li><a href="{% url 'blog:content' %}" class="text">Контент</a></li>
+            {% endif %}
+          </h3>
+
+      </div>
+    </div>
+  </form>
+</div>
+
+
+{% endblock %}

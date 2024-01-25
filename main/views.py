@@ -5,6 +5,8 @@ from django.shortcuts import render
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin, PermissionRequiredMixin
 
+from blog.forms import BlogForm
+from blog.models import Blog
 from main.models import Likes
 from users.models import User
 # from main.models import Match
@@ -20,7 +22,7 @@ class UserProfileListView(LoginRequiredMixin, ListView):
     Класс для создания списка анкет
     """
     model = User
-    template_name = 'main/index.html'
+    template_name = 'main/skylove_list_view.html'
     # permission_required = 'user.view_user'
 
 
@@ -53,3 +55,16 @@ def like_view(request):
     except Exception as e:
         print('Error:', e)
         return JsonResponse({'status': 'error', 'message': str(e)})
+
+
+def administrative_panel(request):
+    return render(request, 'main/administrative_panel.html')
+
+
+class BlogListView(ListView):
+    """
+    Класс для создания списка блоговых записей
+    """
+    model = Blog
+    form_class = BlogForm
+    template_name = 'main/index.html'

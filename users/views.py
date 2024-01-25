@@ -72,6 +72,3 @@ def restore_password(request):
         user.save()
         return redirect(reverse('users:login'))
     return render(request, "users/restore_password.html")
-
-
-

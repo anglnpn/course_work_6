@@ -25,7 +25,8 @@ urlpatterns = [
     path('', include('main.urls', namespace='main')),
     path('users/', include('users.urls', namespace='users')),
     # path('chat/', include('chat.urls', namespace='chat')),
-    # path('blog/', include('blog.urls', namespace='blog')),
+    path('blog/', include('blog.urls', namespace='blog')),
+    path('mailing/', include('mailing.urls', namespace='mailing')),
 ]
 
 if settings.DEBUG:

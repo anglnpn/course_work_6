@@ -13,8 +13,15 @@
             {% else %}
                 <li><a href="{% url 'users:profile' %}" class="text-white">Профиль: <font color="green" size='3'>{{ user }}</font></a></li>
             {% endif %}
+            <li><a href="{% url 'main:skylove_list_view' %}" class="text-white">SKYLOVE</a></li>
+            <li><a href="/blog/" class="text-white">Блог</a></li>
             <li><a href="{% url 'users:login' %}" class="text-white">Выйти</a></li>
+            <li><a href="{% url 'mailing:mailing_panel' %}" class="text-white">Рассылки</a></li>
+
             <li><a href="/admin/" class="text-white">Админ</a></li>
+                {% if perms.blog.add_blog %}
+                <li><a href="{% url 'main:administrative_panel' %}" class="text-white">Управление админ</a></li>
+                 {% endif %}
     {% else %}
         <li><a href="{% url 'users:register' %}" class="text-white">Регистрация</a></li>
         <li><a href="{% url 'users:login' %}" class="text-white">Войти</a></li>
