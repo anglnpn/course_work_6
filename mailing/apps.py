@@ -1,3 +1,5 @@
+from time import sleep
+
 from django.apps import AppConfig
 
 
@@ -7,3 +9,8 @@ class MailingConfig(AppConfig):
 
     def ready(self):
         import mailing.signals
+
+        # для рассылки
+        from mailing.jobs import jobs
+        sleep(2)
+        jobs.start()

@@ -1,7 +1,8 @@
-from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin
-from django.shortcuts import render, redirect
-from django.urls import reverse_lazy, reverse
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.shortcuts import render
+from django.urls import reverse_lazy
 from django.views.generic import CreateView
+
 
 from mailing.forms import PartnerForm, ClientsListForm, MailingForm, MessageForm
 from mailing.models import Partner, ClientsList, Mailing
@@ -30,7 +31,7 @@ class ClientsListCreateView(LoginRequiredMixin, CreateView):
     model = ClientsList
     form_class = ClientsListForm
     template_name = 'mailing/client_list_create.html'
-    success_url = reverse_lazy('client_list_create')
+    success_url = reverse_lazy('mailing:mailing_panel')
 
     def form_valid(self, form):
         partner = self.request.user.partner

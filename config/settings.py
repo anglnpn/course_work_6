@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.postgres',
+    'django_crontab',
     'PIL',
     'main',
     'blog',
@@ -159,3 +160,5 @@ EMAIL_ADMIN = EMAIL_HOST_USER
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+CRONJOBS = [('*/5 * * * *', 'myapp.cron.my_scheduled_job')]
