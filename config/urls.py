@@ -29,5 +29,9 @@ urlpatterns = [
     path('mailing/', include('mailing.urls', namespace='mailing')),
 ]
 
+
+handler403 = 'mailing.views.custom_permission_denied'
+
+
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

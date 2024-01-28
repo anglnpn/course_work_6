@@ -57,6 +57,8 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
+
 ROOT_URLCONF = 'config.urls'
 
 TEMPLATES = [
@@ -136,6 +138,7 @@ TIPOLOGIA_CHOICES = [
 ]
 
 TIME_CHOICES = [
+    ('*/1 * * * *', 'каждую минуту'),
     ('0 0 * * *', 'раз в день'),
     ('0 0 * * 0', 'раз в неделю'),
     ('0 0 1 * *', 'раз в месяц'),
@@ -161,4 +164,14 @@ EMAIL_ADMIN = EMAIL_HOST_USER
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-CRONJOBS = [('*/5 * * * *', 'myapp.cron.my_scheduled_job')]
+# кэшируем данные
+CACHE_ENABLED = os.getenv('CACHE_ENABLED') == 'True'
+
+if CACHE_ENABLED:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+            'LOCATION': os.getenv('CACHE_LOCATION'),
+            "TIMEOUT": 300
+        }
+    }

@@ -10,8 +10,9 @@
         <div class="card-header">
           <h3 class="card-title">
             Управление сайтом
-            {% if perms.blog.add_blog %}
+            {% if perms.mailing.can_blocked %}
             <li><a href="{% url 'blog:content' %}" class="text">Контент</a></li>
+            <li><a href="{% url 'mailing:mailings_manage' %}" class="text">Рассылки</a></li>
             {% endif %}
           </h3>
 

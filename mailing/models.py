@@ -34,6 +34,7 @@ class Partner(models.Model):
     address = models.CharField(max_length=50, verbose_name='адрес компании')
     phone = models.CharField(max_length=35, verbose_name='телефон')
     email_company = models.EmailField(unique=True, verbose_name='почта компании')
+    is_active = models.BooleanField(default=True, verbose_name='блокировка партнера')
 
     def __str__(self):
         return f'{self.name_company} {self.email_company}'
@@ -72,6 +73,21 @@ class Mailing(models.Model):
     periodicity = models.CharField(max_length=50, verbose_name='периодичность', choices=TIME_CHOICES)
     status = models.CharField(max_length=50, default='создана', verbose_name='статус')
     name_mailing = models.CharField(max_length=50, verbose_name='название рассылки', **NULLABLE)
+    is_active = models.BooleanField(default=True, verbose_name='блокировка рассылки')
+
+    def __str__(self):
+        return f'{self.name_mailing}'
+
+    class Meta:
+        verbose_name = 'рассылка'
+        verbose_name_plural = 'рассылка'
+        ordering = ('name_mailing',)
+        permissions = [
+            (
+                'can_blocked',
+                'can_blocked'
+            )
+        ]
 
 
 class Message(models.Model):
@@ -80,4 +96,15 @@ class Message(models.Model):
     """
     mailing = models.OneToOneField(Mailing, on_delete=models.CASCADE)
     theme = models.CharField(max_length=100, verbose_name='тема сообщения для рассылки')
-    text = models.CharField(max_length=100, verbose_name='текст сообщения для рассылки')
+    text = models.TextField(verbose_name='текст сообщения для рассылки')
+
+
+class LogMailing(models.Model):
+    """
+    Модель для логов рассылки
+    """
+    mailing = models.ForeignKey(Mailing, on_delete=models.CASCADE)
+    last_date = models.DateTimeField(auto_now=True, editable=False, verbose_name='дата последней попытки')
+    status = models.CharField(max_length=20, verbose_name='статус попытки')
+    server_response = models.CharField(max_length=200, verbose_name='ответ почтового сервера', **NULLABLE)
+

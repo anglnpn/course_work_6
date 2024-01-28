@@ -43,6 +43,7 @@ class ClientsListForm(forms.ModelForm):
         model = ClientsList
         fields = ['name', 'clients']
 
+    # форма для добавления клиента в список
     clients = forms.ModelMultipleChoiceField(
         queryset=Client.objects.all(),
         widget=forms.CheckboxSelectMultiple
@@ -58,6 +59,7 @@ class MailingForm(forms.ModelForm):
         model = Mailing
         fields = ['name_mailing', 'clients_list', 'periodicity']
 
+    # форма для добавления списка клиентов
     clients_list = forms.ModelMultipleChoiceField(
         queryset=ClientsList.objects.all(),
         widget=forms.CheckboxSelectMultiple
@@ -72,3 +74,6 @@ class MessageForm(forms.ModelForm):
     class Meta:
         model = Message
         fields = ['theme', 'text']
+
+
+

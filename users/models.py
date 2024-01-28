@@ -6,6 +6,10 @@ from utils import NULLABLE
 
 
 class User(AbstractUser):
+    """
+    Модель для создания пользователя.
+    Создается при регистрации.
+    """
     username = None
     name = models.CharField(max_length=50, verbose_name='имя')
     surname = models.CharField(max_length=50, verbose_name='фамилия')
@@ -17,6 +21,7 @@ class User(AbstractUser):
     avatar = models.ImageField(upload_to='media/', verbose_name='аватар', **NULLABLE)
     country = models.CharField(max_length=50, verbose_name='страна', **NULLABLE)
     city = models.CharField(max_length=50, verbose_name='город', **NULLABLE)
+    verification_code = models.CharField(max_length=50, verbose_name='код верификации email', **NULLABLE)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []

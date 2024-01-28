@@ -9,9 +9,9 @@ from django.contrib.auth.models import Group
 def create_client(sender, instance, created, **kwargs):
     """
     Сигнал для автоматического создания клиента при регистрации пользователя
-    Исключен персонал сайта
+    Исключен персонал сайта и не активных пользователей
     """
-    if created and not instance.is_staff:
+    if created and not instance.is_staff and instance.is_active:
         # При создании нового пользователя создаем соответствующего клиента
         Client.objects.create(
             client=instance,
