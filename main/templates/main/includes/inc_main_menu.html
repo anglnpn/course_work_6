@@ -1,24 +1,85 @@
-<div class="col-sm-9 offset-md-0 py-4">
+
+<div class="col-sm-8 offset-md-0 py-4">
   <h4 class="text-white">Меню</h4>
   <ul class="list-unstyled">
     <li><a href="{% url 'main:main' %}" class="text-white">Главная</a></li>
+    <li><a href="{% url 'main:skylove_list_view' %}" class="text-white">SkyLove</a></li>
+    <li><a href="/blog/" class="text-white">Блог</a></li>
   </ul>
 </div>
-  <div class="col-sm-3 offset-md-0 py-4">
-  <h4 class="text-white">Профиль</h4>
-  <ul class="list-unstyled">
-     {% if user.is_authenticated %}
+
+<div class="col-sm-4 offset-md-0 py-4">
+    <h4 class="text-white">Личный кабинет</h4>
+    <ul class="list-unstyled">
+        {% if user.is_authenticated %}
             {% if user.avatar  %}
-                <li><a href="{% url 'users:profile' %}" class="text-white">Профиль: <font color="green" size='3'>{{ user }}</font> <img src="{{ user.avatar.url }}" alt="Avatar" width="30" height="30"></a></li>
+                <li>
+                    <form action="{% url 'users:profile' %}">
+                    {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-outline-secondary text-white btn-logout">Профиль:</button><font color="green" size='3'> {{ user }} </font><img src="{{ user.avatar.url }}" alt="Avatar" width="30" height="30">
+                    </form>
+                </li>
             {% else %}
-                <li><a href="{% url 'users:profile' %}" class="text-white">Профиль: <font color="green" size='3'>{{ user }}</font></a></li>
+                <li>
+                    <form action="{% url 'users:profile' %}">
+                    {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-outline-secondary text-white btn-logout">Профиль: <font color="green" size='3'> {{ user }} </font></button>
+                    </form>
+                </li>
             {% endif %}
-            <li><a href="{% url 'users:logout' %}" class="text-white">Выйти</a></li>
-            <li><a href="/admin/" class="text-white">Админ</a></li>
-            <li><a href="{% url 'chat:chat_list' %}" class="text-white">Чат</a></li>
+            <li>
+                <form action="{% url 'users:logout' %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-outline-secondary text-white btn-logout">Выйти</button>
+                </form>
+                {% if not user.partner %}
+                <form action="{% url 'mailing:partner_registration' %}">
+                    {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-outline-secondary text-white btn-logout">Стать партнером</button>
+                </form>
+                {% endif %}
+                <form action="/admin/">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-outline-secondary text-white btn-logout">Админ</button>
+                </form>
+                <form action="{% url 'mailing:mailing_panel' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-outline-secondary text-white btn-logout">Рассылки</button>
+                </form>
+                {% if perms.mailing.can_blocked %}
+                <form action="{% url 'main:administrative_panel' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-outline-secondary text-white btn-logout">Управление</button>
+                </form>
+                {% endif %}
+            </li>
         {% else %}
-            <li><a href="{% url 'users:register' %}" class="text-white">Регистрация</a></li>
-            <li><a href="{% url 'users:login' %}" class="text-white">Войти</a></li>
+            <li>
+                <form action="{% url 'users:register' %}">
+                {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-outline-secondary text-white btn-logout">Регистрация</button>
+                </form>
+            </li>
+            <li>
+                <form action="{% url 'users:login' %}">
+                {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-outline-secondary text-white btn-logout">Войти</button>
+                </form>
+            </li>
         {% endif %}
-  </ul>
+    </ul>
 </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+

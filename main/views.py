@@ -1,81 +1,89 @@
-from django.http import HttpResponseForbidden
-from django.shortcuts import render, get_object_or_404, redirect
-from django.urls import reverse_lazy, reverse
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.views.decorators.cache import cache_page
 
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin, PermissionRequiredMixin
+from blog.forms import BlogForm
+from blog.models import Blog
+from mailing.models import Mailing, Client
+from users.models import User
 
-from main.models import Questionnaire
-from main.forms import QuestionnaireForm
-
-
-class QuestionnaireCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
-    """
-    Класс для создания анкеты
-    """
-    model = Questionnaire
-    form_class = QuestionnaireForm
-    success_url = reverse_lazy('main:main')
-    template_name = 'main/new_questionnaire.html'
-    permission_required = 'main.add_questionnaire'
-
-    def __init__(self):
-        self.request = None
-        self.object = None
-
-    def form_valid(self, form):
-        self.object = form.save()
-        self.object.author = self.request.user
-        self.object.save()
-
-        return super().form_valid(form)
+from django.shortcuts import render
+from django.views.generic import ListView, DetailView
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import permission_required
 
 
-class QuestionnaireListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
+from main.utils import record_like
+
+
+class UserProfileListView(LoginRequiredMixin, ListView):
     """
     Класс для создания списка анкет
     """
-    model = Questionnaire
-    template_name = 'main/index.html'
-    permission_required = 'main.view_questionnaire'
-
-    def get_queryset(self):
-        queryset = super().get_queryset()
-
-        for questionnaire in queryset:
-            questionnaire.can_edit = questionnaire.author == self.request.user
-
-        return queryset
+    model = User
+    template_name = 'main/skylove_list_view.html'
+    # permission_required = 'user.view_user'
 
 
-class QuestionnaireDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
+class UserProfileDetailView(LoginRequiredMixin, DetailView):
     """
     Класс для отображения анкеты
     """
 
-    model = Questionnaire
+    model = User
     template_name = 'main/profile_view.html'
-    permission_required = 'main.view_questionnaire'
+    # permission_required = 'user.view_user'
+
+#применяем кэширование контроллера
+@cache_page(60)
+@csrf_exempt
+@require_POST
+def like_view(request):
+    try:
+        # Получаем id текущего пользователя
+        user_id = request.user.id
+
+        # Получаем id пользователя, которого лайкнули
+        liked_user_id = request.POST.get('liked_user_id')
+        print('current_user_id:', user_id)
+        print('liked_user_id:', liked_user_id)
+
+        # Вызываем функцию для записи лайка
+        record_like(user_id, int(liked_user_id))
+
+        return JsonResponse({'status': 'success'})
+    except Exception as e:
+        print('Error:', e)
+        return JsonResponse({'status': 'error', 'message': str(e)})
 
 
-class QuestionnaireUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
+@permission_required('mailing.can_blocked')
+def administrative_panel(request):
+    return render(request, 'main/administrative_panel.html')
+
+
+class BlogListView(ListView):
     """
-     Класс для обновления анкеты
-     """
-
-    model = Questionnaire
-    form_class = QuestionnaireForm
-    success_url = reverse_lazy('main:main')
-    template_name = 'main/questionnaire_update.html'
-    permission_required = 'main.change_questionnaire'
-
-
-class QuestionnaireDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
+    Класс для создания списка блоговых записей
     """
-    Класс для удаления анкеты
-    """
+    model = Blog
+    form_class = BlogForm
+    template_name = 'main/index.html'
 
-    model = Questionnaire
-    template_name = 'main/questionnaire_delete.html'
-    permission_required = 'main.delete_questionnaire'
-    success_url = reverse_lazy('main:main')
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # Получите общее количество рассылок
+        total_mailings = Mailing.objects.count()
+
+        active_mailings = Mailing.objects.filter(is_active=True).count()
+
+        total_clients = Client.objects.count()
+
+        # Передайте информацию в контекст
+        context['total_mailings'] = total_mailings
+        context['active_mailings'] = active_mailings
+        context['total_clients'] = total_clients
+
+        return context

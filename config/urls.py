@@ -24,9 +24,14 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('main.urls', namespace='main')),
     path('users/', include('users.urls', namespace='users')),
-    path('chat/', include('chat.urls', namespace='chat')),
-    # path('blog/', include('blog.urls', namespace='blog')),
+    # path('chat/', include('chat.urls', namespace='chat')),
+    path('blog/', include('blog.urls', namespace='blog')),
+    path('mailing/', include('mailing.urls', namespace='mailing')),
 ]
+
+
+handler403 = 'mailing.views.custom_permission_denied'
+
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

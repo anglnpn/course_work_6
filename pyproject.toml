@@ -7,11 +7,17 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.11"
-django = "^5.0.1"
+django = "5.0.1"
 psycopg2-binary = "^2.9.9"
 utils = "^1.0.2"
 pillow = "^10.2.0"
 python-dotenv = "^1.0.0"
+schedule = "^1.2.1"
+redis = "^5.0.1"
+pytest = "^7.4.4"
+django-crontab = "^0.7.1"
+apscheduler = "^3.10.4"
+click = "^8.1.7"
 
 [build-system]
 requires = ["poetry-core"]

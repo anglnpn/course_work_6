@@ -1,0 +1,46 @@
+<!-- mailing_detail_user.html -->
+{% extends 'main/base.html' %}
+{% load mediapath %}
+
+{% block content %}
+
+<div class="row row-cols-1 row-cols-md-2 g-4">
+    <div class="col-md-12">
+        <div class="card mb-4 box-shadow">
+            <div class="card-body">
+                <h3 class="card-title">{{ object.name_mailing }}</h3>
+                <small class="text-body-secondary">Дата создания: {{ object.date|date:'d-m-Y H:i:s' }}</small><br><br>
+
+                <!-- Вывод информации о рассылке -->
+                <h4>Сообщение рассылки:</h4>
+                <p>{{ object.message.theme }}: {{ object.message.text }}</p>
+
+                <!-- Вывод статистики из логов рассылки -->
+                <h4>Статистика рассылки:</h4>
+
+                <p>Количество успешных отправлений: {{ logs_good }}</p>
+                {% if logs_fail %}
+                    <ul>
+                        <li>{{ logs_fail.status }} - {{ logs_fail.last_date }} - {{ logs_fail.server_response }}</li>
+                        <!-- Добавьте другие поля, которые вы хотите отобразить из логов -->
+
+                    </ul>
+                {% else %}
+                    <p>Нет статистики для этой рассылки.</p>
+                {% endif %}
+
+                <div class="btn-group">
+                  <a href="{% url 'mailing:mailing_update_user' object.pk %}"
+                     class="btn btn-sm btn-outline-secondary">Edit</a>
+                  <a href="{% url 'mailing:mailing_confirm_delete' object.pk %}"
+                     class="btn btn-sm btn-outline-secondary">Delete</a>
+              </div>
+
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+    </div>
+</div>
+
+{% endblock %}

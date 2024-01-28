@@ -1,5 +1,5 @@
-from random import random
 import string
+from random import choice
 
 NULLABLE = {'blank': True, 'null': True}
 
@@ -8,7 +8,7 @@ def generate_password():
     length = 6
     characters = string.ascii_letters + string.digits + string.punctuation
 
-    password = ''.join(random.choice(characters) for i in range(length))
+    # password = ''.join(choice(characters) for i in range(length))
+    password = '8989'
 
     return password
-
